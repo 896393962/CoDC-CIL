@@ -1,0 +1,37 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Datasets and generated outputs
+/data/
+/outputs/
+/runs/
+/wandb/
+/models/
+**/data/
+**/logs/
+**/results/
+**/Checkpoints/
+**/checkpoints/
+
+# Large model and data artifacts
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
+*.pkl
+*.pb
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
