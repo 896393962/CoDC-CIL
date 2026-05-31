@@ -6,13 +6,22 @@ Official PyTorch implementation of:
 
 ## Environment
 
+Tested environment:
+
+```text
+GPU: NVIDIA GeForce RTX 3090 (24 GB)
+CUDA: 12.4
+Python: 3.11
+PyTorch: CUDA-compatible build
+```
+
 Install dependencies with:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Use a CUDA-enabled PyTorch build for training.
+Install the PyTorch and torchvision versions that match your local CUDA toolkit and driver.
 
 ## Data
 
