@@ -90,15 +90,3 @@ cil_survey/                   standard CIL baseline framework
 recent_baselines/             recent baseline result utilities
 third_party/improved_diffusion source-only diffusion utilities
 ```
-
-## Citation
-
-If this repository is useful for your research, please cite:
-
-```bibtex
-@misc{chen2026codc,
-  title  = {CoDC: Unified Diffusion and Classification for Enhanced Class-Incremental Learning},
-  author = {Chen, Junli and Wen, Jianming and Wang, Sijin and Zhu, Qiuyu},
-  year   = {2026}
-}
-```
