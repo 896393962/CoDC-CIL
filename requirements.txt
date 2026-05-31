@@ -4,8 +4,8 @@ matplotlib
 pillow
 opencv-python
 tqdm
-torch
-torchvision
+torch==2.5.1
+torchvision==0.20.1
 tensorboardX
 scikit-learn
 seaborn

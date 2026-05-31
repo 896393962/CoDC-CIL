@@ -22,21 +22,23 @@ data_transform = transforms.Compose([
                          std=[0.5, 0.5, 0.5]),
 ])
 
-train_root = r"/home/data/WSJ/dataset/CIFAR10/train/"
-
 def gen_data(mean,cov,num):
     mean=mean.cpu()
+    data = np.random.multivariate_normal(mean, cov, num)
     # 生成一个多元正态分布矩阵
     data = np.random.multivariate_normal(mean, cov, num)
     # data = np.vstack(np.tile(mean, (num, 1)))  # only mean sample
     # 保留四位有效数字
     return np.round(data, 4)
 
-def save_map_mean_var(subset, load_batch, trainer):
+def save_map_mean_var(subset, load_batch, trainer, train_root="./dataset/cifar100/train"):
     map_mean_var = {}
-    # train_root = r"/home/t704/code/wsj/dataset/CIFAR10/CIFAR10/train/"
+    if not os.path.isdir(train_root):
+        raise FileNotFoundError(
+            f"Dataset root does not exist: {train_root}. "
+            "Set pedcc_train_root in Main.py before generating PEDCC statistics."
+        )
     # train_root=r"./data/MNIST_img/train"
-    # train_root=r"F:\dataset\EMNIST"
 
     '''
     the images are arranged in this way: ::
@@ -83,6 +85,12 @@ def save_map_mean_var(subset, load_batch, trainer):
 def PEDCC_sampler(modelConfig):
     with torch.no_grad():
         device = torch.device(modelConfig["device"])
+        train_root = modelConfig.get("pedcc_train_root", modelConfig.get("train_root", "./dataset/cifar100/train"))
+        if not os.path.isdir(train_root):
+            raise FileNotFoundError(
+                f"Dataset root does not exist: {train_root}. "
+                "Set pedcc_train_root in Main.py or pass it through modelConfig."
+            )
         net_model = UNet(T=modelConfig["T"], num_labels=modelConfig["num_labels"], ch=modelConfig["channel"],
                          ch_mult=modelConfig["channel_mult"], num_res_blocks=modelConfig["num_res_blocks"], dropout=modelConfig["dropout"])
 
@@ -144,4 +152,3 @@ def PEDCC_sampler(modelConfig):
             genRate = true_count / (true_count + false_count)
             logger.log(f'class: {class_num}, T={true_count}, '
                   f'F={false_count}, genRate={genRate:.4f}')
-

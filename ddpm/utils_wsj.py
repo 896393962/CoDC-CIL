@@ -7,14 +7,14 @@
 def fileName2Txt(image_path, save_path):
     """
     文件夹路径
-    img_path = r'F:\dataset\bedroom3w\bedroom3w\bedroomsub'
+    img_path = './images'
     txt 保存路径
-    save_txt_path = r'F:\dataset\bedroom3w\bedroom_val.txt'
+    save_txt_path = './image_names.txt'
     """
 
     import os
     # 读取文件夹中的所有文件
-    imgs = os.listdir(img_path)
+    imgs = os.listdir(image_path)
 
     # 图片名列表
     names = []
@@ -25,7 +25,7 @@ def fileName2Txt(image_path, save_path):
             names.append(img)
 
     print(f'file_sum = {len(names)}')
-    txt = open(save_txt_path, 'w')
+    txt = open(save_path, 'w')
 
     for name in names:
         txt.write(name + '\n')  # 逐行写入图片名，'\n'表示换行
@@ -53,9 +53,9 @@ def draw_curve(dirs, i, j):
 
 if __name__ == "__main__":
     # 文件夹路径
-    img_path = r'F:\dataset\bedroom3w\bedroom3w\bedroomsub'
+    img_path = './images'
     # txt 保存路径
-    save_txt_path = r'F:\dataset\bedroom3w\bedroom_val.txt'
-    dirs = r'F:\dataset\bedroom3w\loss_ans.txt'
+    save_txt_path = './image_names.txt'
+    dirs = './loss_ans.txt'
     draw_curve(dirs, 0, 1)
     # fileName2Txt(img_path, save_txt_path)

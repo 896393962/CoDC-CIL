@@ -81,10 +81,10 @@ class iCIFAR100(iData):
         )
 
         # train_dataset = datasets.ImageFolder(
-        #     root="/home/data/WSJ/FaceScrub/train",  # 训练集路径
+        #     root="./data/FaceScrub/train",
         # )
         # test_dataset = datasets.ImageFolder(
-        #     root="/home/data/WSJ/FaceScrub/test",  # 测试集路径
+        #     root="./data/FaceScrub/test",
         # )
         # self.train_data, self.train_targets = convert_to_cifar_format(train_dataset)
         # self.test_data, self.test_targets = convert_to_cifar_format(test_dataset)

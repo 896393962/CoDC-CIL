@@ -43,6 +43,27 @@ def read_pkl():
     return a
 
 
+def _make_imagefolder_dataset(root, training):
+    if root is None:
+        raise ValueError("Dataset root is not configured.")
+    if not os.path.isdir(root):
+        raise FileNotFoundError(
+            f"Dataset root does not exist: {root}. "
+            "Set train_root/test_root in Main.py or pass them through modelConfig."
+        )
+    transform_steps = []
+    if training:
+        transform_steps.extend([
+            transforms.RandomHorizontalFlip(),
+            transforms.RandomCrop(size=32, padding=4),
+        ])
+    transform_steps.extend([
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+    ])
+    return torchvision.datasets.ImageFolder(root, transform=transforms.Compose(transform_steps))
+
+
 # consieLinear层 实现了norm的fea与norm weight的点积计算，服务于margin based softmax loss
 # 将w替换成pedcc，固定
 # 计算余弦距离
@@ -140,28 +161,12 @@ def train(modelConfig: Dict):
     # sub_dir = modelConfig["lr"]
 
     # dataset
-    CIFAR10_Train_ROOT = r'F:\dataset\CIFAR10\CIFAR10\train'
-    CIFAR10_ddim250_e10w_Train_ROOT = r'F:\dataset\CIFAR10\ddim250_e=10w'
-    CIFAR10_ddim250_e15w_Train_ROOT = r'F:\dataset\CIFAR10\ddim250_e=15w'
-    CIFAR10_Test_ROOT = r'F:\dataset\CIFAR10\CIFAR10\test'
     # CIFAR100_Train_ROOT = '../data/diffgen_class_imgs/'
-    # CIFAR100_Train_ROOT = r'F:\dataset\CIFAR100\CIFAR100_stage1/train/'
-    CIFAR100_Train_ROOT = r'F:\dataset\CIFAR100\CIFAR100\train'
-    CIFAR100_Test_ROOT = r'F:\dataset\CIFAR100\CIFAR100\test'
-    CIFAR100_50_Train_ROOT =  r'F:\dataset\CIFAR100\CIFAR100_50\train'
-    CIFAR100_50_Test_ROOT =  r'F:\dataset\CIFAR100\CIFAR100_50\test'
+    CIFAR100_Train_ROOT = modelConfig.get("train_root", "./dataset/cifar100/train")
+    CIFAR100_Test_ROOT = modelConfig.get("test_root", "./dataset/cifar100/test")
+    CIFAR100_50_Train_ROOT = modelConfig.get("classify_train_root", CIFAR100_Train_ROOT)
+    CIFAR100_50_Test_ROOT = modelConfig.get("classify_test_root", CIFAR100_Test_ROOT)
 
-    # CIFAR100_50_Train_ROOT = r'F:\dataset\CIFAR100\CIFAR100_50\train'
-    # CIFAR100_50_Test_ROOT = r'F:\dataset\CIFAR100\CIFAR100_50\test'
-    # # CIFAR10_Test_ROOT = '/home/data/WSJ/dataset/CIFAR10/test'
-    # # CIFAR10_Train_ROOT = '/home/data/WSJ/dataset/CIFAR10/train'
-    # # CIFAR10_Train_ROOT = '/home/data/WSJ/Code/ddpm(copy)/SampledImgs_diff/diffgen_true'
-    # CIFAR100_Train_ROOT = '/home/data/WSJ/dataset/CIFAR100/train'
-    # CIFAR100_Test_ROOT = '/home/data/WSJ/dataset/CIFAR100/test'
-    # CIFAR100_50_Train_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIFAR100_50/train'
-    # CIFAR100_50_Test_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIFAR100_50/test'
-    # CIFAR100_60_Train_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIL_CIFAR100_60/train'
-    # CIFAR100_60_Test_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIL_CIFAR100_60/test'
     # CIFAR10_train_data = torchvision.datasets.ImageFolder(CIFAR10_Train_ROOT,
     #                                                        transform=transforms.Compose([
     #                                                            transforms.RandomHorizontalFlip(),
@@ -178,38 +183,10 @@ def train(modelConfig: Dict):
     #                                                                                std=[0.5, 0.5, 0.5]),
     #                                                       ])
     #                                                       )
-    CIFAR100_train_data = torchvision.datasets.ImageFolder(CIFAR100_Train_ROOT,
-                                                           transform=transforms.Compose([
-                                                               transforms.RandomHorizontalFlip(),
-                                                               transforms.RandomCrop(size=32, padding=4),
-                                                               transforms.ToTensor(),
-                                                               transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                    std=[0.5, 0.5, 0.5]),
-                                                           ])
-                                                           )
-    CIFAR100_test_data = torchvision.datasets.ImageFolder(CIFAR100_Test_ROOT,
-                                                          transform=transforms.Compose([
-                                                              transforms.ToTensor(),
-                                                              transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                   std=[0.5, 0.5, 0.5]),
-                                                          ])
-                                                          )
-    CIFAR100_50_train_data = torchvision.datasets.ImageFolder(CIFAR100_50_Train_ROOT,
-                                                           transform=transforms.Compose([
-                                                               transforms.RandomHorizontalFlip(),
-                                                               transforms.RandomCrop(size=32, padding=4),
-                                                               transforms.ToTensor(),
-                                                               transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                    std=[0.5, 0.5, 0.5]),
-                                                           ])
-                                                           )
-    CIFAR100_50_test_data = torchvision.datasets.ImageFolder(CIFAR100_50_Test_ROOT,
-                                                          transform=transforms.Compose([
-                                                              transforms.ToTensor(),
-                                                              transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                   std=[0.5, 0.5, 0.5]),
-                                                          ])
-                                                          )
+    CIFAR100_train_data = _make_imagefolder_dataset(CIFAR100_Train_ROOT, training=True)
+    CIFAR100_test_data = _make_imagefolder_dataset(CIFAR100_Test_ROOT, training=False)
+    CIFAR100_50_train_data = CIFAR100_train_data
+    CIFAR100_50_test_data = CIFAR100_test_data
 
     train_data = CIFAR100_train_data
     test_data = CIFAR100_test_data
@@ -404,28 +381,12 @@ def classify(modelConfig: Dict):
     device = torch.device(modelConfig["device"])
 
     # dataset
-    CIFAR10_Train_ROOT = r'F:\dataset\CIFAR10\CIFAR10\train'
-    CIFAR10_ddim250_e10w_Train_ROOT = r'F:\dataset\CIFAR10\ddim250_e=10w'
-    CIFAR10_ddim250_e15w_Train_ROOT = r'F:\dataset\CIFAR10\ddim250_e=15w'
-    CIFAR10_Test_ROOT = r'F:\dataset\CIFAR10\CIFAR10\test'
     # CIFAR100_Train_ROOT = '../data/diffgen_class_imgs/'
-    # CIFAR100_Train_ROOT = r'F:\dataset\CIFAR100\CIFAR100_stage1/train/'
-    CIFAR100_Train_ROOT = r'F:\dataset\CIFAR100\CIFAR100\train'
-    CIFAR100_Test_ROOT = r'F:\dataset\CIFAR100\CIFAR100\test'
-    CIFAR100_50_Train_ROOT =  r'F:\dataset\CIFAR100\CIFAR100_50\train'
-    CIFAR100_50_Test_ROOT =  r'F:\dataset\CIFAR100\CIFAR100_50\test'
+    CIFAR100_Train_ROOT = modelConfig.get("train_root", "./dataset/cifar100/train")
+    CIFAR100_Test_ROOT = modelConfig.get("test_root", "./dataset/cifar100/test")
+    CIFAR100_50_Train_ROOT = modelConfig.get("classify_train_root", CIFAR100_Train_ROOT)
+    CIFAR100_50_Test_ROOT = modelConfig.get("classify_test_root", CIFAR100_Test_ROOT)
 
-    # CIFAR100_50_Train_ROOT = r'F:\dataset\CIFAR100\CIFAR100_50\train'
-    # CIFAR100_50_Test_ROOT = r'F:\dataset\CIFAR100\CIFAR100_50\test'
-    # # CIFAR10_Test_ROOT = '/home/data/WSJ/dataset/CIFAR10/test'
-    # # CIFAR10_Train_ROOT = '/home/data/WSJ/dataset/CIFAR10/train'
-    # # CIFAR10_Train_ROOT = '/home/data/WSJ/Code/ddpm(copy)/SampledImgs_diff/diffgen_true'
-    # CIFAR100_Train_ROOT = '/home/data/WSJ/dataset/CIFAR100/train'
-    # CIFAR100_Test_ROOT = '/home/data/WSJ/dataset/CIFAR100/test'
-    # CIFAR100_50_Train_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIFAR100_50/train'
-    # CIFAR100_50_Test_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIFAR100_50/test'
-    # CIFAR100_60_Train_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIL_CIFAR100_60/train'
-    # CIFAR100_60_Test_ROOT = '/home/data/WSJ/dataset/CIFAR100/CIL_CIFAR100_60/test'
     # CIFAR10_train_data = torchvision.datasets.ImageFolder(CIFAR10_Train_ROOT,
     #                                                        transform=transforms.Compose([
     #                                                            transforms.RandomHorizontalFlip(),
@@ -442,38 +403,10 @@ def classify(modelConfig: Dict):
     #                                                                                std=[0.5, 0.5, 0.5]),
     #                                                       ])
     #                                                       )
-    CIFAR100_train_data = torchvision.datasets.ImageFolder(CIFAR100_Train_ROOT,
-                                                           transform=transforms.Compose([
-                                                               transforms.RandomHorizontalFlip(),
-                                                               transforms.RandomCrop(size=32, padding=4),
-                                                               transforms.ToTensor(),
-                                                               transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                    std=[0.5, 0.5, 0.5]),
-                                                           ])
-                                                           )
-    CIFAR100_test_data = torchvision.datasets.ImageFolder(CIFAR100_Test_ROOT,
-                                                          transform=transforms.Compose([
-                                                              transforms.ToTensor(),
-                                                              transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                   std=[0.5, 0.5, 0.5]),
-                                                          ])
-                                                          )
-    CIFAR100_50_train_data = torchvision.datasets.ImageFolder(CIFAR100_50_Train_ROOT,
-                                                           transform=transforms.Compose([
-                                                               transforms.RandomHorizontalFlip(),
-                                                               transforms.RandomCrop(size=32, padding=4),
-                                                               transforms.ToTensor(),
-                                                               transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                    std=[0.5, 0.5, 0.5]),
-                                                           ])
-                                                           )
-    CIFAR100_50_test_data = torchvision.datasets.ImageFolder(CIFAR100_50_Test_ROOT,
-                                                          transform=transforms.Compose([
-                                                              transforms.ToTensor(),
-                                                              transforms.Normalize(mean=[0.5, 0.5, 0.5],
-                                                                                   std=[0.5, 0.5, 0.5]),
-                                                          ])
-                                                          )
+    CIFAR100_train_data = _make_imagefolder_dataset(CIFAR100_Train_ROOT, training=True)
+    CIFAR100_test_data = _make_imagefolder_dataset(CIFAR100_Test_ROOT, training=False)
+    CIFAR100_50_train_data = _make_imagefolder_dataset(CIFAR100_50_Train_ROOT, training=True)
+    CIFAR100_50_test_data = _make_imagefolder_dataset(CIFAR100_50_Test_ROOT, training=False)
 
     train_data = CIFAR100_50_train_data
     test_data = CIFAR100_50_test_data

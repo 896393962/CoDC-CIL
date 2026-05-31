@@ -13,6 +13,7 @@ GPU: NVIDIA GeForce RTX 3090 (24 GB)
 CUDA: 12.4
 Python: 3.11
 PyTorch: 2.5.1
+torchvision: 0.20.1
 ```
 
 Install dependencies with:
@@ -21,7 +22,7 @@ Install dependencies with:
 pip install -r requirements.txt
 ```
 
-Install the PyTorch and torchvision versions that match your local CUDA toolkit and driver.
+For CUDA-enabled training, install the PyTorch 2.5.1 wheel that matches your local CUDA toolkit and driver.
 
 ## Data
 
@@ -40,8 +41,19 @@ dataset/
 Set dataset paths in:
 
 ```text
-ddpm/Diffusion/Train.py
+ddpm/Main.py
 ```
+
+The default paths are:
+
+```text
+ddpm/dataset/cifar100/train
+ddpm/dataset/cifar100/test
+ddpm/dataset/cifar100_50/train
+ddpm/dataset/cifar100_50/test
+```
+
+`pedcc_train_root` in `ddpm/Main.py` controls the dataset path used when regenerating PEDCC statistics.
 
 Datasets and checkpoints are not included.
 

@@ -5,7 +5,6 @@ from typing import Dict
 import numpy as np
 
 import torch
-import torch._six
 import torch.optim as optim
 from tqdm import tqdm
 from torch.utils.data import DataLoader
@@ -22,8 +21,14 @@ def train(modelConfig: Dict):
     device = torch.device(modelConfig["device"])
 
     # dataset
+    train_root = modelConfig.get("train_root", "./dataset/cifar10/train")
+    if not os.path.isdir(train_root):
+        raise FileNotFoundError(
+            f"Dataset root does not exist: {train_root}. "
+            "Set train_root in MainCondition.py or pass it through modelConfig."
+        )
     dataset = ImageFolder(
-        r'/home/t704/code/wsj/dataset/CIFAR10/train_3',
+        train_root,
         transform=transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),

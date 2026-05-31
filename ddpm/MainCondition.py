@@ -19,6 +19,7 @@ def main(model_config=None):
         "img_size": 32,
         "grad_clip": 1.,
         "device": "cuda:0",
+        "train_root": "./dataset/cifar10/train",
         "w": 1.8,
         "save_dir": "./CheckpointsCondition/",
         "training_load_weight": None,
