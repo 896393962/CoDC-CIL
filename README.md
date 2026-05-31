@@ -12,7 +12,7 @@ Tested environment:
 GPU: NVIDIA GeForce RTX 3090 (24 GB)
 CUDA: 12.4
 Python: 3.11
-PyTorch: CUDA-compatible build
+PyTorch: 2.5.1
 ```
 
 Install dependencies with:
